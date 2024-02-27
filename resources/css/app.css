@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[x-cloak] {
+    display: none !important;
+}
+
+input[type="search" i]::-webkit-search-cancel-button {
+    @apply cursor-pointer;
+}
+
+input[type="search"] + svg {
+    @apply absolute inset-y-0 right-0 top-0 mr-3 mt-3;
+    visibility: hidden;
+}
+
+input[type="search"]:placeholder-shown + svg {
+    visibility: visible;
+}

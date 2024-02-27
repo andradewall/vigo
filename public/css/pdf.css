@@ -1,0 +1,166 @@
+@page {
+    margin: 60px 60px 20px 60px;
+    font-family:'Times New Roman', Times, serif;
+}
+
+body {
+    font-size: 14px;
+}
+
+p {
+    text-align: justify;
+}
+
+#title {
+    text-decoration: underline;
+    text-align: center;
+    font-weight: bold;
+}
+
+#contract-number-wrapper {
+    text-align: right;
+    font-weight: bold;
+}
+
+#contract-number {
+    text-decoration: underline;
+    float: right;
+    margin-left: 4px;
+}
+
+table {
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+td {
+    font-weight: normal;
+    width: 33%;
+}
+
+#products-table {
+    border-collapse: collapse;
+}
+
+#products-table, #products-table td, #products-table th {
+    border: 1px solid black;
+}
+
+#products-name-column {
+    width: 80%;
+}
+
+#signatures-date {
+    text-align: center;
+}
+
+/* 
+#header {
+    text-decoration: underline;
+} 
+
+#logo {
+    float: left;
+    margin-right: 12px;
+}
+
+#header-title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#header-details {
+    text-align: center;
+}
+
+#title {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 12px;
+    margin-bottom: -16px;
+}
+
+#date {
+    float: left;
+    text-align: center;
+}
+
+#date + p {
+    float: right;
+}
+
+#clearfix {
+    clear: both;
+}
+
+#contract-number {
+    text-decoration: underline;
+    text-align: center;
+}
+
+#subtitle {
+    text-align: center;
+    font-weight: bold;
+}
+
+#contact {
+    font-weight: bold;
+}
+
+#description {
+    font-weight: bold;
+    margin-top: 12px;
+}
+
+#description > p {
+    padding-bottom: 12px;
+    border-bottom: 1px solid black;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+}
+
+table, td, th {
+    border: 1px solid black;
+    text-align: center;
+}
+
+td {
+    font-weight: normal;
+}
+
+#description-date {
+    margin: 12px 0;
+    border: 2px solid black;
+    padding: 12px 56px;
+}
+
+#description-usage-address {
+    text-align: center;
+    border-bottom: 1px solid black;
+    padding-bottom: 12px;
+}
+
+#terms {
+    margin-top: 12px;
+}
+
+#terms > p {
+    text-align: center;
+    font-weight: bold;
+}
+
+#terms span {
+    font-size: 10px;
+    display: block;
+    text-align: justify;
+}
+
+#signatures {
+    margin-top: 24px;
+    text-align: center;
+} */
