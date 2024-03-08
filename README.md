@@ -26,7 +26,7 @@ Quando ele está com os serviços desativados, ele é um quadrado verde.
 2. O terminal irá abrir na pasta `C:\laragon\www`
 3. Rodar o comando:
 ```bash
-git clone https://github.com/andradewall/estoque.git moplan
+git clone https://github.com/andradewall/estoque.git vigo 
 ```
 
 # Config sistema
@@ -34,7 +34,7 @@ git clone https://github.com/andradewall/estoque.git moplan
 2. Digitar os comandos:
 3. Entrar na pasta:
 ```bash
-cd moplan
+cd vigo 
 ```
 4. Instalar pacotes PHP (esse pode demorar)
 ```bash
@@ -54,11 +54,11 @@ nano .env
 ```
 8. Editar as seguintes variáveis para o seguinte valor:
 ```bash
-APP_NAME=Moplan
+APP_NAME=Vigo
 APP_ENV=production
 # ...
 APP_DEBUG=false
-APP_URL=http://moplan.test
+APP_URL=http://vigo.test
 # ...
 ```
 9. Apertar `CTRL + O` e depois `ENTER` para salvar
@@ -86,7 +86,7 @@ php artisan route:cache && php artisan view:cache && php artisan config:cache &&
 ```
 	
 # Testar sistema
-1. O link para o sistema é `http://moplan.test`
+1. O link para o sistema é `http://vigo.test`
 
 # Limpar testes
 1. Abrir o terminal do Laragon
