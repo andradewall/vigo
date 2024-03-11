@@ -26,7 +26,7 @@ Quando ele está com os serviços desativados, ele é um quadrado verde.
 2. O terminal irá abrir na pasta `C:\laragon\www`
 3. Rodar o comando:
 ```bash
-git clone https://github.com/andradewall/vigo.git vigo 
+git clone https://github.com/andradewall/vigo.git
 ```
 
 # Config sistema
