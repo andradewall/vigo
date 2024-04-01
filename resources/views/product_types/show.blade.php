@@ -7,7 +7,16 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto px-8 space-y-6">
-            <div class="flex flex-col gap-6 mb-6" x-data="">
+            <div class="flex flex-col gap-6 mb-6" x-data="{base_type: {{ $productType->base_type }}}">
+                <span class="px-6 py-2 rounded-full bg-blue-200 text-blue-800 uppercase w-fit">
+                    @php
+                        $baseTypeName = $productType->base_type->baseName();
+                        $baseTypeComponent = "icons." . $productType->base_type->componentName();
+                    @endphp
+                    Produto por {{ $baseTypeName }}
+                    <x-dynamic-component :component="$baseTypeComponent" class="w-5 h-5 inline-block" />
+                </span>
+
                 <x-form.input type="text"
                               name="name"
                               id="name"

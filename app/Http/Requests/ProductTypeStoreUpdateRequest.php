@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\BaseTypeEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -19,6 +20,11 @@ class ProductTypeStoreUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'base_type' => [
+                'required',
+                'numeric',
+                Rule::in(array_map(fn ($case) => $case->value, BaseTypeEnum::cases())),
+            ],
             'name' => [
                 'required',
                 'string',

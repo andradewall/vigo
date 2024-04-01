@@ -59,7 +59,10 @@
                                     <a href="{{ route('types.show', $type) }}" class="text-blue-600
                                     hover:text-blue-900">{{ $type->code_prefix }}</a>
                                 </td>
-                                <td class="px-6 py-3">R$ {{ formatMoney($type->price) }}</td>
+                            <td class="px-6 py-3 flex">
+                                @php($baseTypeComponent = "icons." . $type->base_type->componentName())
+                                R$ {{ formatMoney($type->price) }} / <x-dynamic-component :component="$baseTypeComponent" class="ml-2 w-5 h-5" />
+                            </td>
                                 <td class="px-6 py-3">{{ $type->name }}</td>
                                 <td class="px-6 py-3">{{ $type->description }}</td>
                             </tr>

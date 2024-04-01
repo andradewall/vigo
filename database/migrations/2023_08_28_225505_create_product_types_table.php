@@ -12,6 +12,7 @@ return new class () extends Migration {
     {
         Schema::create('product_types', function (Blueprint $table) {
             $table->id();
+            $table->unsignedSmallInteger('base_type');
             $table->string('code_prefix', 120)->unique();
             $table->string('name', 125);
             $table->string('description', 255)->nullable();

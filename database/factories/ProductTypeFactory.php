@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\BaseTypeEnum;
 use Faker\Factory as Faker;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,6 +23,7 @@ class ProductTypeFactory extends Factory
 
         return [
             'code_prefix' => strtoupper(substr($name, 0, 3)) . $faker->unique(true)->randomNumber(3),
+            'base_type'   => $faker->randomElement(array_map(fn ($case) => $case->value, BaseTypeEnum::cases())),
             'name'        => $name,
             'description' => $faker->sentence(),
             'price'       => $faker->randomFloat(2, 1, 1000),

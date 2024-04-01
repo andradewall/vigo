@@ -46,7 +46,7 @@ class ProductTypeController extends Controller
         ));
 
         ProductType::create([
-            ...$request->only('name', 'description', 'code_prefix', 'price'),
+            ...$request->only('name', 'description', 'code_prefix', 'base_type'),
             'price' => $price,
         ]);
 

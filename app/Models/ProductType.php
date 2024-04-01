@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\BaseTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\{Model, SoftDeletes};
+use Illuminate\Database\Eloquent\{Model};
 
 /**
  * App\Models\ProductType
@@ -37,6 +38,11 @@ use Illuminate\Database\Eloquent\{Model, SoftDeletes};
 class ProductType extends Model
 {
     use HasFactory;
+
+    protected $casts = [
+        'price'     => 'float',
+        'base_type' => BaseTypeEnum::class,
+    ];
 
     public function products(): HasMany
     {
