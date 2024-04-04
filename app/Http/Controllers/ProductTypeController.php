@@ -73,7 +73,7 @@ class ProductTypeController extends Controller
         ));
 
         $productType->update([
-            ...$request->only('name', 'description', 'code_prefix'),
+            ...$request->only('name', 'description', 'code_prefix', 'base_type'),
             'price' => $price,
         ]);
 
