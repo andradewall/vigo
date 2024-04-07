@@ -20,7 +20,7 @@ class ProductTypeController extends Controller
             ->when(!empty($filter) && $filter !== '*', function (Builder $query) use ($filter, $search) {
                 $query->where($filter, 'LIKE', '%' . $search . '%');
             })
-            ->when(!empty($search) && $search === '*', function (Builder $query) use ($search) {
+            ->when(!empty($search) && $filter === '*', function (Builder $query) use ($search) {
                 $query->where('code_prefix', 'like', '%' . $search . '%');
                 $query->orWhere('name', 'like', '%' . $search . '%');
                 $query->orWhere('description', 'like', '%' . $search . '%');

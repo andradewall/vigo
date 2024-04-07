@@ -43,8 +43,7 @@
                                   name="price"
                                   id="price"
                                   label="Preço (R$)"
-                                  x-mask:dynamic="$money($input, ',')"
-                                  x-on:blur="$event.target.value = handleDecimals($event.target.value)"
+                                  x-on:input="formatCurrency"
                                   required
                     />
                 </div>
@@ -59,25 +58,11 @@
 
     @push('scripts')
         <script>
-            const handleDecimals = (value) => {
-                console.log(value);
-                if (!value) return value;
-
-                const valueHasComma = value.includes(',');
-
-                if (! valueHasComma) {
-                    return value + ',00';
-                }
-
-                const valueSplitted = value.split(',');
-                const valueBeforeComma = valueSplitted[0];
-                const valueAfterComma = valueSplitted[1];
-
-                if (! valueBeforeComma) return '0,' + valueAfterComma;
-
-                if (valueAfterComma.length === 1) return valueBeforeComma + ',' + valueAfterComma + '0';
-
-                if (valueAfterComma.length === 2) return valueBeforeComma + ',' + valueAfterComma;
+            const formatCurrency = (event) => {
+                let input = event.target;
+                let value = input.value.replace(/\D/g, ''); // Remove não dígitos
+                value = (value / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                input.value = value;
             }
         </script>
     @endpush

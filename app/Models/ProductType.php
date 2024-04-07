@@ -40,6 +40,7 @@ class ProductType extends Model
     use HasFactory;
 
     protected $casts = [
+        'max_size'  => 'float',
         'price'     => 'float',
         'base_type' => BaseTypeEnum::class,
     ];
