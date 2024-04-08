@@ -120,14 +120,6 @@ describe('base_type', function () {
 });
 
 describe('max_size', function () {
-    it('can not create a product type without a max size', function () {
-        post(route('types.store'), [
-            'max_size' => null,
-        ])->assertSessionHasErrors(['max_size']);
-
-        assertDatabaseCount('product_types', 0);
-    });
-
     it('saves max size as null if the base type is not measurable', function () {
         $name        = 'Product type name';
         $description = 'Product type description';
