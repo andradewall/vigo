@@ -22,4 +22,9 @@ enum BaseTypeEnum: int
             self::MEASURABLE => 'meter',
         };
     }
+
+    public function isMeasurable(): bool
+    {
+        return $this->value === self::MEASURABLE->value;
+    }
 }

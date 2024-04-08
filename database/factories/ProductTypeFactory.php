@@ -25,7 +25,7 @@ class ProductTypeFactory extends Factory
         return [
             'code_prefix' => strtoupper(substr($name, 0, 3)) . $faker->unique(true)->randomNumber(3),
             'base_type'   => $baseType,
-            'max_size'    => ($baseType === BaseTypeEnum::MEASURABLE) ? $faker->randomFloat(2, 1, 1000) : null,
+            'max_size'    => ($baseType === BaseTypeEnum::MEASURABLE->value) ? $faker->randomFloat(2, 1, 1000) : null,
             'name'        => $name,
             'description' => $faker->sentence(),
             'price'       => $faker->randomFloat(2, 1, 1000),

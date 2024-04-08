@@ -41,6 +41,16 @@
                               readonly
                 />
 
+                @if($productType->base_type->isMeasurable())
+                <x-form.input type="text"
+                              name="max_size"
+                              id="max_size"
+                              label="Tamanho Máximo (m)"
+                              value="{{ formatMoney($productType->max_size) }}"
+                              readonly
+                />
+                @endif
+
                 <x-form.textarea name="description"
                               id="description"
                               label="Descrição"
@@ -72,7 +82,7 @@
 
     @if(session()->has('status'))
         <x-toast type="{{ session()->get('status') }}">
-            {{ session()->get('message') }}
+            {{ session()->get('status_message') }}
         </x-toast>
     @endif
 

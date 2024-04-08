@@ -61,7 +61,7 @@
 
     @if(session()->has('status'))
         <x-toast type="{{ session()->get('status') }}">
-            {{ session()->get('message') }}
+            {{ session()->get('status_message') }}
         </x-toast>
     @endif
 </x-app-layout>

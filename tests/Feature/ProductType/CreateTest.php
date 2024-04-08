@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\BaseTypeEnum;
 use Illuminate\Support\Str;
 
 use function Pest\Laravel\assertDatabaseHas;
@@ -118,12 +119,45 @@ describe('base_type', function () {
     });
 });
 
+describe('max_size', function () {
+    it('can not create a product type without a max size', function () {
+        post(route('types.store'), [
+            'max_size' => null,
+        ])->assertSessionHasErrors(['max_size']);
+
+        assertDatabaseCount('product_types', 0);
+    });
+
+    it('saves max size as null if the base type is not measurable', function () {
+        $name        = 'Product type name';
+        $description = 'Product type description';
+        $codePrefix  = 'PT';
+        $price       = '10,01';
+
+        post(route('types.store'), [
+            'base_type'   => BaseTypeEnum::COUNTABLE->value,
+            'max_size'    => '1,01',
+            'name'        => $name,
+            'description' => $description,
+            'code_prefix' => $codePrefix,
+            'price'       => $price,
+        ])->assertSessionHasNoErrors();
+
+        assertDatabaseCount('product_types', 1);
+        assertDatabaseHas('product_types', [
+            'base_type' => BaseTypeEnum::COUNTABLE,
+            'max_size'  => null,
+        ]);
+    });
+});
+
 it('can create a product type', function () {
-    $baseType    = 1;
+    $baseType    = BaseTypeEnum::MEASURABLE->value;
     $name        = 'Product type name';
     $description = 'Product type description';
     $codePrefix  = 'PT';
     $price       = '10,01';
+    $maxSize     = '1,01';
 
     post(route('types.store'), [
         'base_type'   => $baseType,
@@ -131,6 +165,7 @@ it('can create a product type', function () {
         'description' => $description,
         'code_prefix' => $codePrefix,
         'price'       => $price,
+        'max_size'    => $maxSize,
     ])->assertSessionHasNoErrors();
 
     assertDatabaseCount('product_types', 1);
@@ -140,5 +175,6 @@ it('can create a product type', function () {
         'description' => $description,
         'code_prefix' => $codePrefix,
         'price'       => 10.01,
+        'max_size'    => 1.01,
     ]);
 });

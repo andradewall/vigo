@@ -1,3 +1,6 @@
+@props([
+    'test' => false
+])
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -8,10 +11,16 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto px-8 space-y-6">
             <x-form post :action="route('types.store')" with-loading>
-                <div class="flex flex-col gap-6 mb-6">
+                <div class="flex flex-col gap-6 mb-6" x-data="{ isMeasurable: @js(\App\Enums\BaseTypeEnum::MEASURABLE->value == old('base_type')) }">
                     <div class="space-x-8">
                         <label class="inline-flex items-center cursor-pointer">
-                            <input type="radio" name="base_type" value="1" class="sr-only peer" required checked>
+                            <input type="radio"
+                                name="base_type"
+                                value="{{ \App\Enums\BaseTypeEnum::COUNTABLE->value}}"
+                                class="sr-only peer"
+                                required
+                                @checked(\App\Enums\BaseTypeEnum::COUNTABLE->value == old('base_type'))
+                                @click="isMeasurable = false">
                             <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                             <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300 flex">
                                 <x-icons.quantity class="w-5 h-5 mr-2" />
@@ -20,7 +29,13 @@
                         </label>
 
                         <label class="inline-flex items-center cursor-pointer">
-                            <input type="radio" name="base_type" value="2" class="sr-only peer" required>
+                            <input type="radio"
+                                name="base_type"
+                                value="{{ \App\Enums\BaseTypeEnum::MEASURABLE->value }}"
+                                class="sr-only peer"
+                                required
+                                @checked(\App\Enums\BaseTypeEnum::MEASURABLE->value == old('base_type'))
+                                @click="isMeasurable = true">
                             <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                             <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300 flex">
                                 <x-icons.meter class="w-5 h-5 mr-2" />
@@ -48,13 +63,21 @@
                     />
 
                     <x-form.input type="text"
-                                  name="price"
-                                  id="price"
-                                  label="Preço (R$)"
-                                  x-mask:dynamic="$money($input, ',')"
-                                  x-on:blur="$event.target.value = handleDecimals($event.target.value)"
-                                  required
+                        name="price"
+                        id="price"
+                        label="Preço (R$)"
+                        x-on:input="formatCurrency"
+                        required
                     />
+
+                    <div class="hidden" :class="{ 'hidden': ! isMeasurable }">
+                        <x-form.input type="text"
+                            name="max_size"
+                            id="max_size"
+                            label="Tamanho Máximo (m)"
+                            x-on:input="formatCurrency"
+                        />
+                    </div>
 
                     <x-form.textarea name="description"
                                      id="description"
@@ -71,25 +94,11 @@
 
     @push('scripts')
         <script>
-            const handleDecimals = (value) => {
-                console.log(value);
-                if (!value) return value;
-
-                const valueHasComma = value.includes(',');
-
-                if (! valueHasComma) {
-                    return value + ',00';
-                }
-
-                const valueSplitted = value.split(',');
-                const valueBeforeComma = valueSplitted[0];
-                const valueAfterComma = valueSplitted[1];
-
-                if (! valueBeforeComma) return '0,' + valueAfterComma;
-
-                if (valueAfterComma.length === 1) return valueBeforeComma + ',' + valueAfterComma + '0';
-
-                if (valueAfterComma.length === 2) return valueBeforeComma + ',' + valueAfterComma;
+            const formatCurrency = (event) => {
+                let input = event.target;
+                let value = input.value.replace(/\D/g, ''); // Remove não dígitos
+                value = (value / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                input.value = value;
             }
         </script>
     @endpush
