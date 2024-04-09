@@ -58,7 +58,21 @@ class ProductController extends Controller
 
     public function create(): View
     {
-        $productTypes = ProductType::all();
+        $productTypes = collect(ProductType::all());
+        $used         = 0;
+
+        foreach ($productTypes as $type) {
+
+            if ($type->base_type->isMeasurable()) {
+                $used += $type->load('products')
+                    ->products
+                    ->sum('size');
+
+                $type->__set('used', $used);
+
+                $used = 0;
+            }
+        }
 
         return view('products.create', compact('productTypes'));
     }
@@ -68,6 +82,7 @@ class ProductController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        dd($request->all());
         $request->validate(
             [
                 'product_type' => ['required', 'exists:product_types,id'],

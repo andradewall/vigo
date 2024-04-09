@@ -16,6 +16,7 @@ return new class () extends Migration {
             $table->string('code', 125);
             $table->boolean('is_rented')->default(false);
             $table->decimal('price', 10, 2);
+            $table->decimal('size', 10, 2)->nullable();
             $table->timestamps();
         });
     }
