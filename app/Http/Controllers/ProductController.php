@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\CalculateAvailableSize;
 use App\Models\{Product, ProductType};
 use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\{RedirectResponse, Request};
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
@@ -58,23 +61,7 @@ class ProductController extends Controller
 
     public function create(): View
     {
-        $productTypes = collect(ProductType::all());
-        $used         = 0;
-
-        foreach ($productTypes as $type) {
-
-            if ($type->base_type->isMeasurable()) {
-                $used += $type->load('products')
-                    ->products
-                    ->sum('size');
-
-                $type->__set('used', $used);
-
-                $used = 0;
-            }
-        }
-
-        return view('products.create', compact('productTypes'));
+        return view('products.create');
     }
 
     /**
@@ -86,7 +73,36 @@ class ProductController extends Controller
         $request->validate(
             [
                 'product_type' => ['required', 'exists:product_types,id'],
-                'quantity'     => ['required', 'numeric', 'min:1'],
+                'measurable' => ['required', Rule::in(['true', 'false'])],
+                'quantity'     => [
+                    'nullable',
+                    'required_if:measurable,false',
+                    'numeric',
+                    'min:1'
+                ],
+                'size'     => [
+                    'nullable',
+                    'required_if:measurable,true',
+                    'string',
+                    'max:16',
+                    function (string $attributes, mixed $value, \Closure $fail) {
+                        $foundComma              = Str::contains($value, ',');
+                        $commaAsDecimalSeparator = $foundComma && Str::charAt($value, Str::length($value) - 3) === ',';
+
+                        if (!$foundComma && !$commaAsDecimalSeparator) {
+                            $fail('O tamanho deve ser um número com duas casas decimais.');
+                        }
+                    },
+                    function (string $attributes, mixed $value, \Closure $fail) use ($request) {
+                        $type = ProductType::findOrFail($request->input('product_type'));
+
+                        $requested = CalculateAvailableSize::run($type);
+
+                        if ($requested < formatMoneyToFloat($value)) {
+                            $fail('O tamanho desejado ultrapassa o disponível (' . formatMoney($type->max_size) . 'm)');
+                        }
+                    }
+                ],
                 'price'        => [
                     'required',
                     'string',
@@ -96,7 +112,7 @@ class ProductController extends Controller
                         $commaAsDecimalSeparator = $foundComma && Str::charAt($value, Str::length($value) - 3) === ',';
 
                         if (!$foundComma && !$commaAsDecimalSeparator) {
-                            $fail('O preço deve ser um número decimal com duas casas decimais.');
+                            $fail('O preço deve ser um número com duas casas decimais.');
                         }
                     },
                 ],
@@ -129,26 +145,53 @@ class ProductController extends Controller
                 $request->input('price')
             ));
 
-            for ($i = 0; $i < (int) $request->input('quantity'); $i++) {
+            if ($request->input('measurable') === 'true') {
+
                 $code = $lastInt + 1;
 
+                $size = (float) Str::replace(',', '.', Str::replace(
+                    '.',
+                    '',
+                    $request->input('price')
+                ));
+
                 Product::create([
-                    'code'            => $code,
+                    'code' => $code,
                     'product_type_id' => $request->input('product_type'),
-                    'price'           => $price,
+                    'price' => $price,
+                    'size' => $size,
                 ]);
 
-                $lastInt++;
+            } else {
+
+                for ($i = 0; $i < (int) $request->input('quantity'); $i++) {
+                    $code = $lastInt + 1;
+
+                    Product::create([
+                        'code'            => $code,
+                        'product_type_id' => $request->input('product_type'),
+                        'price'           => $price,
+                    ]);
+
+                    $lastInt++;
+                }
             }
 
             DB::commit();
         } catch (Exception $error) {
             DB::rollBack();
 
-            throw $error;
+            $request->session()->flash('status', 'error');
+            $request->session()->flash('status_message', 'Houve um erro ao registrar o produto. Tente novamente mais tarde.');
+            Log::error($error->getMessage());
+
+            return back();
         }
 
-        return to_route('products.index');
+        return to_route('products.index')->with([
+            'status'  => 'success',
+            'status_message' => 'Produto criado com sucesso.',
+        ]);
     }
 
     public function show(Product $product): View
