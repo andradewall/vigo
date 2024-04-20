@@ -3,13 +3,17 @@
 namespace App\Livewire;
 
 use App\Actions\CalculateAvailableSize;
-use App\Models\ProductType;
+use App\Models\{Product, ProductType};
+use App\Rules\NumberIsNotZeroRule;
+use Closure;
 use Illuminate\Contracts\View\{Factory, View};
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\{Builder, Collection};
+use Illuminate\Support\Facades\{DB, Log};
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
-use Livewire\Attributes\On;
+use Illuminate\Validation\Rule as ValidationRule;
+use Livewire\Attributes\{On};
 use Livewire\Component;
+use PHPUnit\Exception;
 
 class CreateProductForm extends Component
 {
@@ -70,53 +74,31 @@ class CreateProductForm extends Component
     {
         return [
             'selectedType' => ['required', 'exists:product_types,id'],
-            'isMeasurable' => ['required', Rule::in(['true', 'false'])],
+            'isMeasurable' => ['required', ValidationRule::in([true, false])],
             'quantity'     => [
                 'nullable',
                 'required_if:isMeasurable,false',
                 'numeric',
-                'min:1'
+                'min:1',
             ],
-            'size'     => [
+            'size' => [
                 'nullable',
                 'required_if:isMeasurable,true',
                 'string',
                 'max:16',
-                function (string $attributes, mixed $value, \Closure $fail) {
-                    $foundComma              = Str::contains($value, ',');
-                    $commaAsDecimalSeparator = $foundComma && Str::charAt($value, Str::length($value) - 3) === ',';
-
-                    if (!$foundComma && !$commaAsDecimalSeparator) {
-                        $fail('O tamanho deve ser um número com duas casas decimais.');
+                new NumberIsNotZeroRule('tamanho'),
+                function (string $attributes, mixed $value, Closure $fail) {
+                    if ($this->sizeAvailable < formatMoneyToFloat($value)) {
+                        $formated = formatMoney($this->sizeAvailable);
+                        $fail("O tamanho desejado ultrapassa o disponível ({$formated}m)");
                     }
                 },
-                function (string $attributes, mixed $value, \Closure $fail) {
-                    $type = ProductType::findOrFail($this->selectedType);
-
-                    $requested = CalculateAvailableSize::run($type);
-
-                    if ($requested < formatMoneyToFloat($value)) {
-                        $fail('O tamanho desejado ultrapassa o disponível (' . formatMoney($type->max_size) . 'm)');
-                    }
-                }
             ],
-            'price'        => [
+            'price' => [
                 'required',
                 'string',
                 'max:16',
-                function (string $attributes, mixed $value, \Closure $fail) {
-                    $foundComma              = Str::contains($value, ',');
-                    $commaAsDecimalSeparator = $foundComma && Str::charAt($value, Str::length($value) - 3) === ',';
-
-                    if (!$foundComma && !$commaAsDecimalSeparator) {
-                        $fail('O preço deve ser um número com duas casas decimais.');
-                    }
-
-                    if ((float) Str::replace(',', '.', Str::replace('.', '', $value)) <= 0) {
-                        $fail('O preço não pode ser zero');
-                    }
-
-                },
+                new NumberIsNotZeroRule('preço'),
             ],
         ];
     }
@@ -138,8 +120,72 @@ class CreateProductForm extends Component
 
     public function save(): void
     {
-        $validated = $this->validate();
-        dd($validated);
+        $this->validate();
+
+        $lastProductOfType = Product::query()
+            ->whereHas('type', function (Builder $query) {
+                $query->where('id', $this->selectedType);
+            })
+            ->orderByDesc('id')
+            ->first();
+
+        $lastInt = (int) $lastProductOfType?->code;
+
+        DB::beginTransaction();
+
+        try {
+            $splittedPrice = explode(',', $this->price);
+            $integerPart   = str_replace(search: '.', replace: '', subject: $splittedPrice[0]);
+            $price         = (float) implode('.', [$integerPart, $splittedPrice[1]]);
+            dd($price);
+
+            if ($request->input('measurable') === 'true') {
+
+                $code = $lastInt + 1;
+
+                $size = (float) Str::replace(',', '.', Str::replace(
+                    '.',
+                    '',
+                    $request->input('price')
+                ));
+
+                Product::create([
+                    'code'            => $code,
+                    'product_type_id' => $request->input('product_type'),
+                    'price'           => $price,
+                    'size'            => $size,
+                ]);
+
+            } else {
+
+                for ($i = 0; $i < (int) $request->input('quantity'); $i++) {
+                    $code = $lastInt + 1;
+
+                    Product::create([
+                        'code'            => $code,
+                        'product_type_id' => $request->input('product_type'),
+                        'price'           => $price,
+                    ]);
+
+                    $lastInt++;
+                }
+            }
+
+            DB::commit();
+        } catch (Exception $error) {
+            DB::rollBack();
+
+            $request->session()->flash('status', 'error');
+            $request->session()->flash('status_message', 'Houve um erro ao registrar o produto. Tente novamente mais tarde.');
+            Log::error($error->getMessage());
+
+            $this->redirect()->back();
+        }
+
+        $this->redirectRoute('products.index')->with([
+            'status'         => 'success',
+            'status_message' => 'Produto criado com sucesso.',
+        ]);
     }
 
     /**

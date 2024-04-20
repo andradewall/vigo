@@ -1,13 +1,20 @@
 <div class="py-12" x-data="">
     <div class="max-w-7xl mx-auto px-8 space-y-6">
 
-        <x-ts-loading />
+        <x-ts-loading loading="selectedType" />
+
+        <x-ts-loading loading="save">
+            <div class="flex items-center text-primary-500 dark:text-white">
+                <x-ts-icon name="arrow-path" class="mr-2 h-10 w-10 animate-spin" />
+                Salvando...
+            </div>
+        </x-ts-loading>
 
         <form wire:submit="save">
             <div class="flex flex-col gap-8 mb-8">
-
+                @dump($errors->all())
                 <x-ts-select.styled label="Tipo de Produto *"
-                    name="product_type"
+                    name="selectedType"
                     wire:model.live="selectedType"
                     select="label:label|value:value"
                     :options="$list"
@@ -24,14 +31,16 @@
                     </x-slot:after>
                 </x-ts-select.styled>
 
-                <input type="hidden" name="measurable" wire:model.live="isMeasurable" />
+                <p>{{ dump($price) }}</p>
+
+                <input type="hidden" name="isMeasurable" wire:model.live="isMeasurable" />
 
                 @if($isMeasurable)
                     <div>
                         <x-ts-input label="Tamanho *"
                             name="size"
                             wire:model="size"
-                            x-on:input="helpers.formatCurrency"
+                            x-mask:dynamic="$money($input, ',')"
                             hint="Em metros" />
 
                         <x-ts-alert color="yellow"

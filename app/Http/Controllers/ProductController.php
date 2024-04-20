@@ -8,8 +8,7 @@ use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\{RedirectResponse, Request};
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\{DB, Log};
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -69,18 +68,17 @@ class ProductController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        dd($request->all());
         $request->validate(
             [
                 'product_type' => ['required', 'exists:product_types,id'],
-                'measurable' => ['required', Rule::in(['true', 'false'])],
+                'measurable'   => ['required', Rule::in(['true', 'false'])],
                 'quantity'     => [
                     'nullable',
                     'required_if:measurable,false',
                     'numeric',
-                    'min:1'
+                    'min:1',
                 ],
-                'size'     => [
+                'size' => [
                     'nullable',
                     'required_if:measurable,true',
                     'string',
@@ -101,9 +99,9 @@ class ProductController extends Controller
                         if ($requested < formatMoneyToFloat($value)) {
                             $fail('O tamanho desejado ultrapassa o disponível (' . formatMoney($type->max_size) . 'm)');
                         }
-                    }
+                    },
                 ],
-                'price'        => [
+                'price' => [
                     'required',
                     'string',
                     'max:16',
@@ -156,10 +154,10 @@ class ProductController extends Controller
                 ));
 
                 Product::create([
-                    'code' => $code,
+                    'code'            => $code,
                     'product_type_id' => $request->input('product_type'),
-                    'price' => $price,
-                    'size' => $size,
+                    'price'           => $price,
+                    'size'            => $size,
                 ]);
 
             } else {
@@ -189,7 +187,7 @@ class ProductController extends Controller
         }
 
         return to_route('products.index')->with([
-            'status'  => 'success',
+            'status'         => 'success',
             'status_message' => 'Produto criado com sucesso.',
         ]);
     }

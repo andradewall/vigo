@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Actions\CalculateAvailableSize;
+use App\Enums\BaseTypeEnum;
 use App\Models\{Contact, Product, ProductType, Rent};
 use Illuminate\Database\Seeder;
 
@@ -22,7 +24,35 @@ class DatabaseSeeder extends Seeder
         ProductType::factory(50)->create();
 
         echo "Creating 200 products...\n";
-        Product::factory(1000)->create();
+
+        foreach (ProductType::all() as $type) {
+            $isMeasurable = $type->base_type === BaseTypeEnum::MEASURABLE;
+            echo "ProductType $type->name\n";
+
+            for ($i = 0; $i < 10; $i++) {
+                echo "- Creating product " . $i + 1 . "\n";
+
+                $full = false;
+                $size = null;
+
+                if ($isMeasurable) {
+                    $availableSize = CalculateAvailableSize::run($type);
+                    $size          = $availableSize - fake()->numberBetween(1, $availableSize);
+                    $full          = $size <= 0;
+                }
+
+                if ($full) {
+                    break;
+                }
+
+                Product::factory()->create([
+                    'product_type_id' => $type->id,
+                    'price'           => $type->price,
+                    'code'            => $i + 1,
+                    'size'            => $size,
+                ]);
+            }
+        }
 
         echo "Creating 20 contacts...\n";
         Contact::factory()->count(100)->create();
