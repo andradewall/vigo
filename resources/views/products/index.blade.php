@@ -12,7 +12,7 @@
 
             <x-search :action="route('products.index')"
                 :items="[
-                    'code_prefix' => 'Prefixo Código',
+                    'code_prefix' => 'Prefixo',
                     'code' => 'Código',
                     'name' => 'Nome',
                     'price' => 'Preço',

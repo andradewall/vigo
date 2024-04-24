@@ -66,7 +66,7 @@
                     <x-ts-input label="Preço (R$) *"
                         name="price"
                         wire:model="price"
-                        x-on:input="helpers.formatCurrency"
+                        x-mask:dynamic="$money($input, ',')"
                         placeholder="9,99"
                         required />
                 </div>

@@ -9,11 +9,9 @@ use Closure;
 use Illuminate\Contracts\View\{Factory, View};
 use Illuminate\Database\Eloquent\{Builder, Collection};
 use Illuminate\Support\Facades\{DB, Log};
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule as ValidationRule;
 use Livewire\Attributes\{On};
 use Livewire\Component;
-use PHPUnit\Exception;
 
 class CreateProductForm extends Component
 {
@@ -65,6 +63,7 @@ class CreateProductForm extends Component
         $this->type          = ProductType::find($this->selectedType);
         $this->sizeAvailable = CalculateAvailableSize::run($this->type);
         $this->isMeasurable  = $this->type->base_type->isMeasurable();
+        $this->price         = str_replace('.', ',', $this->type->price);
     }
 
     /**
@@ -110,7 +109,7 @@ class CreateProductForm extends Component
         return [
             'product_type.required' => 'O tipo do produto é obrigatório.',
             'product_type.exists'   => 'O tipo do produto informado não existe.',
-            'quantity.required'     => 'A quantidade é obrigatória.',
+            'quantity.required_if'  => 'A quantidade é obrigatória.',
             'quantity.numeric'      => 'A quantidade deve ser um número.',
             'quantity.min'          => 'A quantidade deve que ser maior que 0.',
             'price.required'        => 'O preço é obrigatório.',
@@ -135,35 +134,34 @@ class CreateProductForm extends Component
 
         try {
             $splittedPrice = explode(',', $this->price);
-            $integerPart   = str_replace(search: '.', replace: '', subject: $splittedPrice[0]);
-            $price         = (float) implode('.', [$integerPart, $splittedPrice[1]]);
-            dd($price);
+            $price         = (count($splittedPrice) > 1)
+                ? (float) implode('.', [str_replace('.', '', $splittedPrice[0]), $splittedPrice[1]])
+                : (float) $this->price;
 
-            if ($request->input('measurable') === 'true') {
+            if ($this->isMeasurable === true) {
 
                 $code = $lastInt + 1;
 
-                $size = (float) Str::replace(',', '.', Str::replace(
-                    '.',
-                    '',
-                    $request->input('price')
-                ));
+                $splittedSize = explode(',', $this->size);
+                $size         = (float) (count($splittedSize) > 1)
+                    ? (float) implode('.', [str_replace('.', '', $splittedSize[0]), $splittedSize[1]])
+                    : (float) $this->size;
 
                 Product::create([
                     'code'            => $code,
-                    'product_type_id' => $request->input('product_type'),
+                    'product_type_id' => $this->selectedType,
                     'price'           => $price,
                     'size'            => $size,
                 ]);
 
             } else {
 
-                for ($i = 0; $i < (int) $request->input('quantity'); $i++) {
+                for ($i = 0; $i < (int) $this->quantity; $i++) {
                     $code = $lastInt + 1;
 
                     Product::create([
                         'code'            => $code,
-                        'product_type_id' => $request->input('product_type'),
+                        'product_type_id' => $this->selectedType,
                         'price'           => $price,
                     ]);
 
@@ -172,20 +170,20 @@ class CreateProductForm extends Component
             }
 
             DB::commit();
-        } catch (Exception $error) {
+        } catch (\Throwable $error) {
             DB::rollBack();
 
-            $request->session()->flash('status', 'error');
-            $request->session()->flash('status_message', 'Houve um erro ao registrar o produto. Tente novamente mais tarde.');
+            session()->flash('status', 'error');
+            session()->flash('status_message', 'Houve um erro ao registrar o produto. Tente novamente mais tarde');
             Log::error($error->getMessage());
 
-            $this->redirect()->back();
+            $this->redirectRoute('products.create');
         }
 
-        $this->redirectRoute('products.index')->with([
-            'status'         => 'success',
-            'status_message' => 'Produto criado com sucesso.',
-        ]);
+        session()->flash('status', 'success');
+        session()->flash('status_message', 'Produto criado com sucesso');
+
+        $this->redirectRoute('products.index');
     }
 
     /**

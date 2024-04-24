@@ -28,7 +28,7 @@ class ProductTypeController extends Controller
             })
             ->paginate(10);
 
-        $params = request()->only('search');
+        $params = request()->only('search', 'filter');
 
         return view('product_types.index', compact('productTypes', 'params', 'filter'));
     }
