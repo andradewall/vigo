@@ -4,7 +4,6 @@
 ])
 
 
-<!-- <div class="relative w-full flex" x-data="{ filterLabel: 'Filtrar', filter: '*' }"> -->
 <label for="search" class="sr-only">Pesquisar</label>
 <div class="relative w-full flex"
     x-data="{ filterLabel: 'Filtrar', filter: '*', placeholder: 'Pesquisar...'}"
@@ -12,7 +11,6 @@
 >
     <x-ts-dropdown position="bottom-start">
         <x-slot:action>
-            <!-- <x-ts-button x-on:click="show = !show" sm outline>Open</x-ts-button> -->
             <button id="dropdown-search-button"
                 x-on:click="show = !show"
                 class="flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center
@@ -23,7 +21,7 @@
                         <span x-text="filterLabel">Filtrar</span>
                     </x-slot:left>
                 </x-ts-icon>
-                <input type="hidden" name="filter" id="filter"/>
+                <input type="hidden" name="filter" id="filter" x-model="filter" />
             </button>
         </x-slot:action>
         @foreach($items as $key => $value)
@@ -32,43 +30,6 @@
         @endforeach
     </x-ts-dropdown>
 
-<!--     <button id="dropdown-search-button" -->
-<!--             data-dropdown-toggle="dropdown-search" -->
-<!--             class="flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center -->
-<!--             text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100" -->
-<!--             type="button"> -->
-<!--         <span x-text="filterLabel">Filtrar</span> -->
-<!--         <input type="hidden" name="filter" id="filter" x-model="filter" /> -->
-<!--         <x-icons.chevron-down class="ml-4 h-4 w-4" /> -->
-<!--     </button> -->
-<!--     <div id="dropdown-search" -->
-<!--          class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-52"> -->
-<!--         <ul class="py-2 text-sm text-gray-700" -->
-<!--             aria-labelledby="dropdown-search-button"> -->
-<!--             <li> -->
-<!--                 <button type="button" -->
-<!--                         class="inline-flex w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" -->
-<!--                         x-on:click="filterLabel = 'Todos'; filter = '*'" -->
-<!--                         role="menuitem"> -->
-<!--                     <div class="inline-flex items-center"> -->
-<!--                         Todos -->
-<!--                     </div> -->
-<!--                 </button> -->
-<!--             </li> -->
-<!--             @foreach($items as $key => $value) -->
-<!--                 <li> -->
-<!--                     <button type="button" -->
-<!--                             class="inline-flex w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" -->
-<!--                             x-on:click="filterLabel = '{{ $value }}'; filter = '{{ $key }}'" -->
-<!--                             role="menuitem"> -->
-<!--                         <div class="inline-flex items-center"> -->
-<!--                             {{ $value }} -->
-<!--                         </div> -->
-<!--                     </button> -->
-<!--             </li> -->
-<!--             @endforeach -->
-<!--         </ul> -->
-<!--     </div> -->
     <div class="relative w-full">
         <input type="text"
                id="search"
