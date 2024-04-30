@@ -12,7 +12,6 @@
 
         <form wire:submit="save">
             <div class="flex flex-col gap-8 mb-8">
-                @dump($errors->all())
                 <x-ts-select.styled label="Tipo de Produto *"
                     name="selectedType"
                     wire:model.live="selectedType"
@@ -30,8 +29,6 @@
                         </div>
                     </x-slot:after>
                 </x-ts-select.styled>
-
-                <p>{{ dump($price) }}</p>
 
                 <input type="hidden" name="isMeasurable" wire:model.live="isMeasurable" />
 
