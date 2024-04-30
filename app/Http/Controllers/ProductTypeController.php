@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\BaseTypeEnum;
 use App\Http\Requests\ProductTypeStoreUpdateRequest;
 use App\Models\ProductType;
 use Illuminate\Contracts\View\View;
@@ -20,14 +21,14 @@ class ProductTypeController extends Controller
             ->when(!empty($filter) && $filter !== '*', function (Builder $query) use ($filter, $search) {
                 $query->where($filter, 'LIKE', '%' . $search . '%');
             })
-            ->when(!empty($search) && $search === '*', function (Builder $query) use ($search) {
+            ->when(!empty($search) && $filter === '*', function (Builder $query) use ($search) {
                 $query->where('code_prefix', 'like', '%' . $search . '%');
                 $query->orWhere('name', 'like', '%' . $search . '%');
                 $query->orWhere('description', 'like', '%' . $search . '%');
             })
             ->paginate(10);
 
-        $params = request()->only('search');
+        $params = request()->only('search', 'filter');
 
         return view('product_types.index', compact('productTypes', 'params', 'filter'));
     }
@@ -45,13 +46,23 @@ class ProductTypeController extends Controller
             $request->input('price')
         ));
 
+        $maxSize = (float) Str::replace(',', '.', Str::replace(
+            '.',
+            '',
+            $request->input('max_size')
+        ));
+
         ProductType::create([
-            ...$request->only('name', 'description', 'code_prefix', 'price'),
-            'price' => $price,
+            ...$request->only('name', 'description', 'code_prefix', 'base_type'),
+            'price'    => $price,
+            'max_size' => ($request->input('base_type') == BaseTypeEnum::MEASURABLE->value) ? $maxSize : null,
         ]);
 
         return to_route('types.index')
-            ->with('success', 'Tipo de produto cadastrado com sucesso.');
+            ->with([
+                'status'         => 'success',
+                'status_message' => 'Tipo de produto criado com sucesso.',
+            ]);
     }
 
     public function show(ProductType $productType): View
@@ -72,12 +83,22 @@ class ProductTypeController extends Controller
             $request->input('price')
         ));
 
+        $maxSize = (float) Str::replace(',', '.', Str::replace(
+            '.',
+            '',
+            $request->input('max_size')
+        ));
         $productType->update([
-            ...$request->only('name', 'description', 'code_prefix'),
-            'price' => $price,
+            ...$request->only('name', 'description', 'code_prefix', 'base_type'),
+            'price'    => $price,
+            'max_size' => ($request->input('base_type') == BaseTypeEnum::MEASURABLE->value) ? $maxSize : null,
         ]);
 
-        return to_route('types.index');
+        return to_route('types.show', $productType)
+            ->with([
+                'status'         => 'success',
+                'status_message' => 'Tipo de produto atualizado com sucesso.',
+            ]);
     }
 
     public function destroy(ProductType $productType): RedirectResponse

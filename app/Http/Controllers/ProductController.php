@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{Product, ProductType};
+use App\Models\{Product};
 use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\{RedirectResponse, Request};
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
@@ -41,9 +40,9 @@ class ProductController extends Controller
             })
             ->paginate(10);
 
-        $params = request()->only('search');
+        $params = request()->only('search', 'filter');
 
-        return view('products.index', compact('products', 'params'));
+        return view('products.index', compact('products', 'params', 'filter'));
     }
 
     protected function buildIsRentedQuery(Builder $query, string $search, bool $value)
@@ -58,87 +57,14 @@ class ProductController extends Controller
 
     public function create(): View
     {
-        $productTypes = ProductType::all();
-
-        return view('products.create', compact('productTypes'));
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        $request->validate(
-            [
-                'product_type' => ['required', 'exists:product_types,id'],
-                'quantity'     => ['required', 'numeric', 'min:1'],
-                'price'        => [
-                    'required',
-                    'string',
-                    'max:16',
-                    function (string $attributes, mixed $value, \Closure $fail) {
-                        $foundComma              = Str::contains($value, ',');
-                        $commaAsDecimalSeparator = $foundComma && Str::charAt($value, Str::length($value) - 3) === ',';
-
-                        if (!$foundComma && !$commaAsDecimalSeparator) {
-                            $fail('O preço deve ser um número decimal com duas casas decimais.');
-                        }
-                    },
-                ],
-            ],
-            [
-                'product_type.required' => 'O tipo do produto é obrigatório.',
-                'product_type.exists'   => 'O tipo do produto informado não existe.',
-                'quantity.required'     => 'A quantidade é obrigatória.',
-                'quantity.numeric'      => 'A quantidade deve ser um número.',
-                'quantity.min'          => 'A quantidade deve que ser maior que 0.',
-                'price.required'        => 'O preço é obrigatório.',
-                'price.max'             => 'O preço não pode passar de R$ 9.999.999.999,99',
-            ]
-        );
-
-        $lastProductOfType = ProductType::query()
-            ->find($request->input('product_type'))
-            ->products()
-            ->orderBy('code', 'desc')
-            ->first();
-
-        $lastInt = (int) $lastProductOfType?->code;
-
-        DB::beginTransaction();
-
-        try {
-            $price = (float) Str::replace(',', '.', Str::replace(
-                '.',
-                '',
-                $request->input('price')
-            ));
-
-            for ($i = 0; $i < (int) $request->input('quantity'); $i++) {
-                $code = $lastInt + 1;
-
-                Product::create([
-                    'code'            => $code,
-                    'product_type_id' => $request->input('product_type'),
-                    'price'           => $price,
-                ]);
-
-                $lastInt++;
-            }
-
-            DB::commit();
-        } catch (Exception $error) {
-            DB::rollBack();
-
-            throw $error;
-        }
-
-        return to_route('products.index');
+        return view('products.create');
     }
 
     public function show(Product $product): View
     {
         $rents = $product->rents()->paginate(10);
+
+        $product->load('type');
 
         return view('products.show', compact('product', 'rents'));
     }

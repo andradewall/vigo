@@ -4,7 +4,6 @@ use App\Http\Controllers\{ContactController,
     HomeController,
     ProductController,
     ProductTypeController,
-    ProfileController,
     RentController};
 use Illuminate\Support\Facades\Route;
 
@@ -31,7 +30,6 @@ Route::put('/contacts/{contact}', [ContactController::class, 'update'])->name('c
 Route::post('/contacts/details', [ContactController::class, 'details'])->name('contacts.details');
 
 Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
-Route::post('/products', [ProductController::class, 'store'])->name('products.store');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');

@@ -8,6 +8,15 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
+            <span class="px-6 py-2 rounded-full bg-blue-200 text-blue-800 uppercase w-fit">
+                @php
+                    $baseTypeName = $product->type->base_type->baseName();
+                    $baseTypeComponent = "icons." . $product->type->base_type->componentName();
+                @endphp
+                Produto por {{ $baseTypeName }}
+                <x-dynamic-component :component="$baseTypeComponent" class="w-5 h-5 inline-block" />
+            </span>
+
             <div class="grid gap-4 grid-cols-3">
                 <div class="">
                     <span class="font-bold block">

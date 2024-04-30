@@ -18,7 +18,7 @@
         "vite": "^4.0.0"
     },
     "dependencies": {
-        "@alpinejs/mask": "^3.13.0",
+        "@alpinejs/mask": "^3.13.8",
         "inputmask": "^5.0.8",
         "jquery": "^3.7.1",
         "jquery-mask-plugin": "^1.14.16"

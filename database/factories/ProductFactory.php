@@ -24,6 +24,7 @@ class ProductFactory extends Factory
             'product_type_id' => $productType->id,
             'is_rented'       => false,
             'price'           => $this->faker->boolean() ? $productType->price : $this->faker->randomFloat(2, 1, 1000),
+            'size'            => $productType->base_type->isMeasurable() ? $this->faker->randomFloat(2, 1, $productType->max_size) : null,
         ];
     }
 }

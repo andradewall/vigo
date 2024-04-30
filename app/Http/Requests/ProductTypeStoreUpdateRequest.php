@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\BaseTypeEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -19,6 +20,11 @@ class ProductTypeStoreUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'base_type' => [
+                'required',
+                'numeric',
+                Rule::in(array_map(fn ($case) => $case->value, BaseTypeEnum::cases())),
+            ],
             'name' => [
                 'required',
                 'string',
@@ -31,6 +37,30 @@ class ProductTypeStoreUpdateRequest extends FormRequest
                 'max:120',
                 Rule::unique('product_types', 'code_prefix')->ignore($this->productType),
             ],
+            'max_size' => [
+                'nullable',
+                'required_if:base_type,' . BaseTypeEnum::MEASURABLE->value,
+                'string',
+                'max:16',
+                function (string $attributes, mixed $value, \Closure $fail) {
+                    $foundComma              = Str::contains($value, ',');
+                    $commaAsDecimalSeparator = $foundComma && Str::charAt($value, Str::length($value) - 3) === ',';
+
+                    if (!$foundComma && !$commaAsDecimalSeparator) {
+                        $fail('O tamanho máximo deve ser um número com duas casas decimais.');
+                    }
+
+                    // Check if it's value is greater than zero
+                    if ((float) Str::replace(',', '.', Str::replace('.', '', $value)) <= 0) {
+                        $fail('O tamanho máximo deve ser maior que zero.');
+                    }
+                },
+                function (string $attributes, mixed $value, \Closure $fail) {
+                    if ($this->input('base_type') == BaseTypeEnum::MEASURABLE->value && empty($value)) {
+                        $fail('O tamanho máximo é obrigatório para produtos por metro.');
+                    }
+                },
+            ],
             'price' => [
                 'required',
                 'string',
@@ -40,7 +70,12 @@ class ProductTypeStoreUpdateRequest extends FormRequest
                     $commaAsDecimalSeparator = $foundComma && Str::charAt($value, Str::length($value) - 3) === ',';
 
                     if (!$foundComma && !$commaAsDecimalSeparator) {
-                        $fail('O preço deve ser um número decimal com duas casas decimais.');
+                        $fail('O preço deve ser um número com duas casas decimais.');
+                    }
+
+                    // Check if it's value is greater than zero
+                    if ((float) Str::replace(',', '.', Str::replace('.', '', $value)) <= 0) {
+                        $fail('O preço deve ser maior que zero.');
                     }
                 },
             ],
@@ -63,6 +98,24 @@ class ProductTypeStoreUpdateRequest extends FormRequest
             'code_prefix.unique'   => 'Este prefixo do código já existe.',
             'price.required'       => 'O preço é obrigatório.',
             'price.max'            => 'O preço não pode passar de R$ 9.999.999.999,99',
+            'max_size.required_if' => 'O tamanho máximo é obrigatório para produtos por metro.',
         ];
+    }
+
+    // If validation fails, the following method will be called
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        // Get the rule and the field that failed
+        $errors = $validator->errors()->all();
+        $target = "O tamanho máximo é obrigatório para produtos por metro.";
+
+        $foundTarget = count(array_filter($errors, fn ($error) => $error === $target)) > 0;
+
+        if ($foundTarget) {
+            $validator->errors()->forget('max_size');
+            $validator->errors()->add('max_size', $target);
+        }
+
+        parent::failedValidation($validator);
     }
 }
