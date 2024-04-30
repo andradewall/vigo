@@ -36,6 +36,7 @@ class StoreRequest extends FormRequest
                 'min:11',
                 'max:14',
             ],
+            'number'         => ['required', 'numeric', 'unique:rents,id', 'min:1'],
             'starting_date'  => ['required', 'date'],
             'ending_date'    => ['required', 'date', 'after_or_equal:starting_date'],
             'usage_address'  => ['required', 'string', 'max:255'],
@@ -93,6 +94,8 @@ class StoreRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'number.min'                       => 'O número não pode ser menor ou igual a zero.',
+            'number.unique'                    => 'O número informado já está em uso.',
             'contact_document_number.required' => 'O número do documento é obrigatório.',
             'contact_document_number.max'      => 'O número do documento não pode ser maior que o tamanho do formato de CNPJ (XX.XXX.XXX/XXXX-XX)',
             'contact_document_number.min'      => 'O número do documento não pode ser menor que o tamanho do formato de CPF (XXX.XXX.XXX-XX)',

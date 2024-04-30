@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\{CloseRent, CreateRent, Pdf\GenerateContractPdf, Pdf\GenerateProofOfRemovalPdf};
+use App\Actions\{CloseRent, CreateRent, Pdf\GenerateContractPdf};
 use App\Enums\RentStatus;
 use App\Http\Requests\Rent\StoreRequest;
 use App\Models\{Contact, Product, Rent};
@@ -114,6 +114,7 @@ class RentController extends Controller
             ]);
 
             $fields = collect($fields)->merge([
+                'id'                      => $validated->number,
                 'value'                   => $valueParsed,
                 'shipping_fee'            => $shippingFeeParsed,
                 'starting_date'           => Carbon::parse($validated->starting_date),
@@ -305,9 +306,10 @@ class RentController extends Controller
                 ds($products);
 
                 $rent->products()->detach();
+
                 foreach ($products as $product) {
                     $rent->products()->attach($product['id'], [
-                        'price' => $product['price']
+                        'price' => $product['price'],
                     ]);
                 }
 
@@ -330,10 +332,10 @@ class RentController extends Controller
         return to_route('rents.index')->with([
             'status'  => 'success',
             'message' => 'Aluguel renovado com sucesso.',
-//            'link'    => [
-//                'route' => route('pdf.contract', $createRent['entity']),
-//                'text'  => 'Baixar contrato',
-//            ],
+            //            'link'    => [
+            //                'route' => route('pdf.contract', $createRent['entity']),
+            //                'text'  => 'Baixar contrato',
+            //            ],
         ]);
     }
 

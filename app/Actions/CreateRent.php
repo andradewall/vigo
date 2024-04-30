@@ -3,7 +3,7 @@
 namespace App\Actions;
 
 use App\Enums\RentStatus;
-use App\Models\{Contact, Product, Rent};
+use App\Models\{Product, Rent};
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\{DB, Log};
@@ -32,6 +32,7 @@ class CreateRent
      * @throws Throwable
      */
     public static function run(
+        int $id,
         float $value,
         float $shipping_fee,
         ?string $notes,
@@ -54,6 +55,7 @@ class CreateRent
 
         try {
             $rent = Rent::create([
+                'id'                      => $id,
                 'value'                   => $value,
                 'shipping_fee'            => $shipping_fee,
                 'starting_date'           => $starting_date,
