@@ -110,22 +110,16 @@
                         </h3>
                     </div>
 
-                    <x-form.input type="date"
-                                  name="starting_date"
-                                  id="starting_date"
-                                  label="Data de Início"
-                                  :value="now()->format('Y-m-d')"
-                                  required
-                    />
+                    <livewire:rent-duration />
 
-                    <x-form.input type="date"
-                                  name="ending_date"
-                                  id="ending_date"
-                                  label="Data de Término"
-                                  :value="!empty($rent->ending_date) && $rent->ending_date >= now() ?
-                                  $rent->ending_date->format('Y-m-d') : ''"
-                                  required
-                    />
+                    <!-- <x-form.input type="date" -->
+                    <!--               name="ending_date" -->
+                    <!--               id="ending_date" -->
+                    <!--               label="Data de Término" -->
+                    <!--               :value="!empty($rent->ending_date) && $rent->ending_date >= now() ? -->
+                    <!--               $rent->ending_date->format('Y-m-d') : ''" -->
+                    <!--               required -->
+                    <!-- /> -->
 
                     <div class="col-span-2">
                         <x-form.input type="text"
