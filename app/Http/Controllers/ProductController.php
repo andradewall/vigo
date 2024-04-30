@@ -64,6 +64,8 @@ class ProductController extends Controller
     {
         $rents = $product->rents()->paginate(10);
 
+        $product->load('type');
+
         return view('products.show', compact('product', 'rents'));
     }
 
