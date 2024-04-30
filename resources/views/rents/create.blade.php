@@ -110,6 +110,8 @@
                         </h3>
                     </div>
 
+                    <livewire:rent-number />
+
                     <livewire:rent-duration />
 
                     <!-- <x-form.input type="date" -->

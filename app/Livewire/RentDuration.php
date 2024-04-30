@@ -19,6 +19,15 @@ class RentDuration extends Component
         $this->startingDate = now()->format('Y-m-d');
     }
 
+    public function updatedStartingDate(): void
+    {
+        if ($this->duration !== '') {
+            $this->endingDate = Carbon::make($this->startingDate)
+                ->addDays($this->duration)
+                ->format('Y-m-d');
+        }
+    }
+
     public function updatedDuration(): void
     {
         $this->endingDate = Carbon::make($this->startingDate)
