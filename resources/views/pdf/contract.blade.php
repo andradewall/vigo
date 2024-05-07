@@ -27,23 +27,35 @@
     </p>
     <table id="products-table">
         <tr>
-            <th>QUANTIDADE</th>
+            <th>QTDE/METROS</th>
             <th id="products-name-column">DISCRIMINAÇÃO</th>
             <th>VALOR</th>
         </tr>
         @foreach ($products as $product)
         <tr>
-            <td style="text-align: center;">01</td>
+            <td style="text-align: center;">
+                @php
+                    $isMeasurable = $product->type->base_type === \App\Enums\BaseTypeEnum::MEASURABLE
+                @endphp
+                    @if($isMeasurable)
+                    {{ $product->size }}m
+                @else
+                    1
+                @endif
+            </td>
             <td style="padding-left: 4px;">{{ $product->type->name }}</td>
             <td style="text-align: center;">R$ {{ formatMoney($product->pivot->price) }}</td>
         </tr>
         @endforeach
     </table>
+    @php
+        $duration = $rent->starting_date->diffInDays($rent->ending_date);
+    @endphp
     <p>
         Obs.: 1) Serviço de entrega e retirada: R$ {{ formatMoney($rent->shipping_fee) }}.<br />
         Obs.: 2) O I.S.S. será cobrado separadamente conforme legislação em vigor;<br />
         2ª) Os preços acima fixados são válidos para o mês de início da locação. O reajuste de preços observará o disposto na legislação vigente;<br />
-        3ª) Este contrato será válido por 30 dias, iniciando-se na data de emissão da primeira nota fiscal de entrega do(s) equipamento(s);<br />
+        3ª) Este contrato será válido por {{ $duration }} dias, iniciando-se na data de emissão da primeira nota fiscal de entrega do(s) equipamento(s);<br />
         4ª) O local de uso do(s) equipamento(s) objeto deste contrato pelo locatário será: {{ $rent->usage_address }}, sendo vedada expressamente à transferência de local sob pena de retomada, pela Locadora, do(s) equipamento(s) independente de comunicação prévia;<br />
         5ª) A transferência do(s) equipamento(s) sem prévia autorização da Locadora caracteriza o crime de “Apropriação Indébita”, estando o infrator sujeito às penas da Lei;<br />
         6ª) A montagem e desmontagem do(s) equipamento(s) serão executados pela(o) Locatária (o), podendo este solicitar a assistência técnica de pessoal da Locadora que, por sua vez, se compromete a fazê-lo mediante o pagamento da taxa de assistência técnica vigente à época da solicitação;<br />
