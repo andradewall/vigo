@@ -11,12 +11,14 @@ class RentNumber extends Component
 
     public function mount(): void
     {
-        $rents = Rent::select('id')
-            ->get()
-            ->pluck('id')
-            ->toArray();
-
-        $complete = range(1, max($rents));
+        // $rents = Rent::select('id')
+        //     ->get()
+        //     ->pluck('id')
+        //     ->toArray();
+        //
+        // $rents = count($rents) > 0 ? $rents : [];
+        //
+        // $complete = range(1, max($rents));
     }
 
     public function render()
